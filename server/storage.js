@@ -343,7 +343,6 @@ module.exports.listUsers = () => {
 };
 
 module.exports.saveUser = async (email, user, options) => {
-
   options = options || {};
   // todo do we want to keep a Log of users?
   if (!email || !user) {
@@ -388,7 +387,7 @@ module.exports.saveUser = async (email, user, options) => {
   } catch (err) {
     console.error('error saving user');
     console.error(err);
-    throw new Error;
+    throw new Error();
   }
 };
 
@@ -1176,7 +1175,8 @@ module.exports.saveMetaanalysis = async (metaanalysis, email, origTitle, options
   // the following serializes this save after the previous one, whether it fails or succeeds
   // this way we can't have two concurrent saves create metaanalyses with the same title
 
-  const metaanalyses = await currentMetaanalysisSave;
+  await currentMetaanalysisSave;
+  const metaanalyses = await metaanalysisCache;
 
   // prepare the metaanalysis for saving
   const ctime = tools.uniqueNow();
