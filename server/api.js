@@ -264,31 +264,29 @@ function extractUserForSending(user) {
  *
  *
  */
-function listPapersForUser(req, res, next) {
-  storage.getPapersEnteredBy(req.params.user)
-    .then((papers) => {
-      if (papers.length === 0) throw new Error('no papers found');
+async function listPapersForUser(req, res, next) {
+  try {
+    const papers = await storage.getPapersEnteredBy(req.params.user);
+    if (papers.length === 0) throw new Error('no papers found');
 
-      const retval = [];
-      papers.forEach((p) => {
-        retval.push(extractPaperForSending(p, false, req.params.user));
-      });
-      res.json(retval);
-    })
-    .catch(() => next(new NotFoundError()));
+    const retval = [];
+    papers.forEach(p => {
+      retval.push(extractPaperForSending(p, false, req.params.user));
+    });
+    res.json(retval);
+  } catch (error) {
+    next(new NotFoundError());
+  }
 }
 
-function getPaperVersion(req, res, next) {
-  storage.getPaperByTitle(req.params.user, req.params.title, req.params.time)
-    .then((p) => {
-      return storage.getUsernameOfUser(p.enteredBy)
-        .then((username) => {
-          res.json(extractPaperForSending(p, true, req.params.user, username));
-        });
-    })
-    .catch((e) => {
-      next(e.status ? e : new NotFoundError());
-    });
+async function getPaperVersion(req, res, next) {
+  try {
+    const paper = await storage.getPaperByTitle(req.params.user, req.params.title);
+    const username = await storage.getUsernameOfUser(paper.enteredBy);
+    res.json(extractPaperForSending(paper, true, req.params.user, username));
+  } catch (e) {
+    next(e.status ? e : new NotFoundError());
+  }
 }
 
 async function savePaper(req, res, next) {
@@ -404,18 +402,19 @@ function extractReceivedComment(receivedComment) {
  *
  *
  */
-function listMetaanalysesForUser(req, res, next) {
-  storage.getMetaanalysesEnteredBy(req.params.user)
-    .then((mas) => {
-      if (mas.length === 0) throw new Error('no metaanalyses found');
+async function listMetaanalysesForUser(req, res, next) {
+  try {
+    const mas = await storage.getMetaanalysesEnteredBy(req.params.user);
+    if (mas.length === 0) throw new Error('no metaanalyses found');
 
-      const retval = [];
-      mas.forEach((m) => {
-        retval.push(extractMetaanalysisForSending(m, false, req.params.user));
-      });
-      res.json(retval);
-    })
-    .catch(() => next(new NotFoundError()));
+    const retval = [];
+    mas.forEach(m => {
+      retval.push(extractMetaanalysisForSending(m, false, req.params.user));
+    });
+    res.json(retval);
+  } catch (error) {
+    next(new NotFoundError());
+  }
 }
 
 async function getMetaanalysisVersion(req, res, next) {
